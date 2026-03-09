@@ -17,6 +17,24 @@ function getEventTone(event: TimelineEvent): string {
   return 'info'
 }
 
+function shouldShowEventDetail(event: TimelineEvent): boolean {
+  return Boolean(event.detail) && event.level !== 'info'
+}
+
+function formatEventMeta(event: TimelineEvent): string[] {
+  const meta: string[] = []
+
+  if (event.kind !== 'status') {
+    meta.push(event.kind)
+  }
+
+  if (event.messageId) {
+    meta.push(`消息 ${event.messageId}`)
+  }
+
+  return meta
+}
+
 export function TimelinePanel({ timeline, issues }: TimelinePanelProps) {
   return (
     <section className="panel column-panel">
@@ -32,20 +50,29 @@ export function TimelinePanel({ timeline, issues }: TimelinePanelProps) {
         {timeline.length === 0 ? (
           <div className="panel-placeholder">暂无可展示的时间线事件。</div>
         ) : (
-          <ul className="timeline-list">
-            {timeline.map((event) => (
-              <li key={event.id} className={`timeline-item tone-${getEventTone(event)}`}>
-                <div className="timeline-item-header">
-                  <strong>{event.label}</strong>
-                  <span>{event.timestamp ?? '无时间戳'}</span>
-                </div>
-                <div className="timeline-item-meta">
-                  <span>{event.kind}</span>
-                  {event.messageId ? <span>message: {event.messageId}</span> : null}
-                </div>
-                {event.detail ? <p>{event.detail}</p> : null}
-              </li>
-            ))}
+          <ul className="timeline-list timeline-list-compact">
+            {timeline.map((event) => {
+              const meta = formatEventMeta(event)
+
+              return (
+                <li key={event.id} className={`timeline-item timeline-item-compact tone-${getEventTone(event)}`}>
+                  <div className="timeline-item-header">
+                    <strong>{event.label}</strong>
+                    <span>{event.timestamp ?? '无时间戳'}</span>
+                  </div>
+                  {meta.length > 0 ? (
+                    <div className="timeline-item-meta timeline-item-meta-compact">
+                      {meta.map((item) => (
+                        <span key={item} className="timeline-meta-chip">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  {shouldShowEventDetail(event) ? <p className="timeline-item-detail">{event.detail}</p> : null}
+                </li>
+              )
+            })}
           </ul>
         )}
       </div>

@@ -277,6 +277,7 @@ export function reconstructConversation(events: ParsedSSEEvent[], parserIssues: 
     status: errors.length > 0 ? 'error' : warnings.length > 0 ? 'warning' : 'ready',
     summary,
     conversation,
+    rawToolMessages: [],
     timeline,
     issues,
     warnings,

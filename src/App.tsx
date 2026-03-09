@@ -20,14 +20,16 @@ const emptySummary: AnalysisSummary = {
 }
 
 function createAnalysisResult(
-  result: Omit<AnalysisResult, 'messages' | 'conversation'> & { conversation?: AnalysisResult['conversation'] },
+  result: Omit<AnalysisResult, 'messages' | 'conversation'> & { conversation?: AnalysisResult['conversation']; rawToolMessages?: AnalysisResult['rawToolMessages'] },
 ): AnalysisResult {
   const conversation = result.conversation ?? []
+  const rawToolMessages = result.rawToolMessages ?? []
 
   return {
     ...result,
     conversation,
     messages: conversation,
+    rawToolMessages,
   }
 }
 
@@ -43,6 +45,7 @@ function buildIssueOnlyResult(issue: AnalysisIssue): AnalysisResult {
       errorCount: errors.length,
     },
     conversation: [],
+    rawToolMessages: [],
     timeline: [],
     issues: [issue],
     warnings,
@@ -78,6 +81,7 @@ const idleResult = createAnalysisResult({
   status: 'idle',
   summary: emptySummary,
   conversation: [],
+  rawToolMessages: [],
   timeline: [],
   issues: [],
   warnings: [],
@@ -132,7 +136,7 @@ function App() {
         {shouldShowResults ? (
           <section className="workspace-grid">
             <TimelinePanel timeline={analysis.timeline} issues={analysis.issues} />
-            <ConversationPanel messages={analysis.conversation} />
+            <ConversationPanel messages={analysis.conversation} rawToolMessages={analysis.rawToolMessages} />
           </section>
         ) : (
           <EmptyState hasSourceText={hasSourceText} inputMode={inputMode} />

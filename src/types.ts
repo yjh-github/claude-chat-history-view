@@ -56,6 +56,7 @@ export interface AnalysisResult {
   summary: AnalysisSummary
   conversation: ConversationMessage[]
   messages: ConversationMessage[]
+  rawToolMessages: ConversationMessage[]
   timeline: TimelineEvent[]
   issues: AnalysisIssue[]
   warnings: AnalysisIssue[]
