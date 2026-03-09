@@ -21,6 +21,9 @@
 - 从 SSE 事件中重建会话消息视图
 - 汇总展示状态、消息数、事件数、告警数、错误数和时间范围
 - 通过统一界面辅助调试和结构化分析
+- 在 `dialogue` 模式下保留 assistant 工具链摘要，便于沿主对话流阅读
+- 单独展示 `System 上下文` 与 `Tool 明细`，便于区分稳定上下文和原始工具返回
+- 为 raw tool message 保留 `tool_call_id` 等原始调试信息，便于追踪调用链
 
 ## 快速开始
 
@@ -57,6 +60,16 @@ npm run preview
    - **Timeline Panel**：展示事件时间线和解析问题
    - **Conversation Panel**：展示重建后的会话内容
 4. 当输入为空或暂时无法形成结果时，会显示空状态提示。
+
+### Conversation Panel 说明
+
+当前消息视图会按用途拆分为几个区域：
+
+- **主消息流**：优先展示 `user / assistant` 视角，assistant 工具调用会按工具链形式归并展示，便于连续阅读。
+- **System 上下文**：单独展示较稳定的 system 消息，默认折叠，适合按需查看全局上下文。
+- **Tool 明细**：单独展示 raw tool message，不依赖主消息流中的合并结果，适合排查工具调用返回内容。
+
+对于 raw tool message，界面会尽量保留原始结构化内容，并在摘要中展示 `tool_call_id` 等可用于关联调用链的信息。
 
 ## 界面截图
 
@@ -132,7 +145,9 @@ npm run preview
 
 1. `src/parser/inputDetector.ts` 识别输入类型
 2. `src/parser/dialogueParser.ts` 解析消息、时间线和问题列表
-3. 结果交给界面统一展示
+3. assistant 工具调用会在主消息流中整理为工具链摘要
+4. raw `tool` 消息会额外保留为独立调试数据，用于 Tool 明细区域展示
+5. 结果交给界面统一展示
 
 ### 2. sse 路径
 
@@ -142,6 +157,15 @@ npm run preview
 2. `src/parser/sseParser.ts` 将原始文本拆解为事件与解析问题
 3. `src/parser/chatReconstructor.ts` 基于事件重建会话、摘要和时间线
 4. 结果交给界面统一展示
+
+## 适用场景
+
+除了一般性的消息查看，这个分析器也特别适合以下场景：
+
+- 排查 assistant 调用工具后的上下文衔接是否正常
+- 对照 assistant 工具链与 raw tool 返回内容，定位结果异常来源
+- 检查 system 提示词是否影响了后续会话行为
+- 在时间线、问题列表和消息视图之间快速交叉定位异常
 
 ## 样例输入
 
